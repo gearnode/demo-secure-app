@@ -5,8 +5,24 @@ require 'openssl'
 
 # Rack::Utils.escape_html(text)
 
+# SecureHeaders is rack middleware to set HSTS header.
+class SecureHeaders
+  def initialize(app)
+    @app = app
+    @header_key = 'Strict-Transport-Security'
+  end
+
+  def call(env)
+    status, headers, response = @app.call(env)
+    headers[@header_key] = 'max-age=31536000; includeSubdomains; preload'
+    [status, headers, response]
+  end
+end
+
 # DemoApp is the sinatra application.
 class DemoApp < Sinatra::Base
+  use SecureHeaders
+
   get '/' do
     erb(:index)
   end
