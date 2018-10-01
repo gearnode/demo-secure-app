@@ -5,7 +5,8 @@ require 'openssl'
 require 'ostruct'
 require 'pry'
 require 'rack/csrf'
-
+require 'rack/attack'
+require 'active_support/cache'
 
 $store = OpenStruct.new
 $store.messages = []
@@ -55,12 +56,19 @@ class XFrameOptions
   end
 end
 
+# Rate limiting configuration
+Rack::Attack.cache.store = ActiveSupport::Cache::MemoryStore.new
+Rack::Attack.throttle('ip', limit: 10, period: 10, &:ip)
+
 # DefaultApplication is the default application configuration.
 class DefaultApplication < Sinatra::Base
   set :csp_report_only, false
   set :session_cookie_secret, ENV.fetch('SESSION_COOKIE_SECRET')
 
   enable :logging
+
+  #  Rack Attack mitigate DoS attack.
+  use Rack::Attack
 
   # Add HTTP-Strict-Transport-Security header to minigate downgrade
   # protocol attak.
