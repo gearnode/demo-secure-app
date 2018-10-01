@@ -4,7 +4,54 @@
   <meta charset="utf-8">
   <title>Demo App</title>
 </head>
-<body>
-  <h1>HTML page served over TLS</h1>
-</body>
+  <body>
+    <h1>HTML page served over TLS</h1>
+    <% if session[:username] %>
+      <p>Welcome <%= Rack::Utils.escape_html(session[:username]) %>.</p>
+      <h2>Logout</h2>
+      <div>
+        <form method="post" action="logout">
+          <%# Add CSRF token in a hidden input %>
+          <%= Rack::Csrf.tag(env) %>
+          <button>Logout Working</button>
+        </form>
+        <form method="post" action="logout">
+          <button>Logout Not Working</button>
+        </form>
+      </div>
+      <h2>Connected Acconts</h2>
+      <div>
+        <ul>
+          <% accounts.each do |account| %>
+            <li><%= Rack::Utils.escape_html(account) %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% else %>
+      <p>Welcome visitor.</p>
+      <h2>Login</h2>
+      <div>
+        <form method="post" action="/login">
+          <label>Username</label>
+          <%= Rack::Csrf.tag(env) %>
+          <input name="username"/>
+          <button>Login</button>
+        </form>
+      </div>
+    <% end %>
+    <h2>All messages</h2>
+    <div>
+      <ul>
+        <% messages.each do |message| %>
+          <li><%= Rack::Utils.escape_html(message) %></li>
+        <% end %>
+      </ul>
+    </div>
+    <form method="post" action="/messages">
+      <label>Message:</label>
+      <%= Rack::Csrf.tag(env) %>
+      <input name="message" type="text"/>
+      <button>publish</button>
+    </form>
+  </body>
 </html>
