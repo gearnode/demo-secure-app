@@ -58,6 +58,7 @@ end
 # DefaultApplication is the default application configuration.
 class DefaultApplication < Sinatra::Base
   set :csp_report_only, false
+  set :session_cookie_secret, ENV.fetch('SESSION_COOKIE_SECRET')
 
   enable :logging
 
@@ -77,7 +78,7 @@ class DefaultApplication < Sinatra::Base
       domain: 'myapp.dev',
       path: '/',
       expire_after: 2_592_000, # seconds
-      secret: 'change_me',
+      secret: settings.session_cookie_secret,
       httponly: true,
       secure: true
 

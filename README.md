@@ -24,6 +24,11 @@ Create configuration file:
 cp .env.sample .env
 ```
 
+Change default configuration:
+```
+SESSION_COOKIE_SECRET=$(openssl rand -base64 32)
+```
+
 Import configuration vars:
 ```
 source .env
